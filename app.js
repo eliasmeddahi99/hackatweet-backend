@@ -1,4 +1,5 @@
 require("dotenv").config()
+require("./models/connection")
 
 
 var createError = require('http-errors');
