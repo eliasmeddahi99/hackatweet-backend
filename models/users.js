@@ -6,7 +6,6 @@ const userSchema = mongoose.Schema({
   firstname : String, 
   logo : String,
   token: String,
-  tweet : String
 });
 
 const User = mongoose.model('users', userSchema);
