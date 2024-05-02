@@ -4,8 +4,10 @@ const userSchema = mongoose.Schema({
   username: String,
   password: String,
   firstname : String, 
-  logo : String,
   token: String,
+  logo: { type: String,
+    default: "/user.png"
+    },
 });
 
 const User = mongoose.model('users', userSchema);

@@ -11,19 +11,6 @@ router.get('/', function(req, res, next) {
 
 
 
-const newUser = new User({
-
-  username: String,
-  password: String,
-  firstname : String, 
-  logo : String,
-  token: String,
-  tweet : String
-})
-
-newUser.save().then()
-
-
 
 module.exports = router;
 

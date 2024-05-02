@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const twitSchema = mongoose.Schema({
   twit: String,
-  data: Date,
-  liked: Number,
+  date: Date,
+  liked: [String],
   hashtag: String,
   user : { type: mongoose.Schema.Types.ObjectId, ref: 'users' }
 });
