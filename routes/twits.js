@@ -7,9 +7,64 @@ const { checkBody } = require('../modules/checkBody');
 
 const Twit = require("../models/twits")
 const Hashtag = require("../models/hashtags")
+const User = require("../models/users")
 
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////---- Ajouter un like------/////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+ router.post('/like', (req, res) => {
+   
+   Twit.findById(req.body.twitId).then(twitObj => {
+
+      if(twitObj){
+
+         User.findOne({token : req.body.token}).then(currentUser => {
+
+             const isliked = req.body.isliked; 
+
+            if(currentUser && (isliked && isliked != "false")){
+               Twit.updateOne(
+                  { _id : twitObj._id },
+                  { $addToSet: { liked: currentUser.username } }
+               ).then(() =>  res.json({result : true, like_tab : twitObj.liked} ))
+
+            } 
+            //else if (currentUser && isliked === false)
+            else if (currentUser && (isliked === false || isliked === 'false'))
+            {
+               Twit.updateOne(
+                  { _id : twitObj._id },
+                  { $pull: { liked: currentUser.username } }
+               ).then(() =>  res.json({result : true, like_tab : twitObj.liked} ))
+            }
+
+            else {
+               
+               res.json({ result : false, message : "User doesn't exist "})
+            }
+         })
+
+         
+      
+      } else {
+         res.json({ result : false, message : "Twitt doesn't exist "})
+      }
+
+      
+   });
+ });
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////---- Ajout d' un Tweet      //////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 router.post('/:userId', (req, res) => {
 
@@ -18,8 +73,6 @@ router.post('/:userId', (req, res) => {
       res.json({ result: false, error: 'Missing or empty fields' });
       return;
    }
-   
-     // if( #, mot qui le suit = tag
 
       const twit = req.body.newtwit
 
@@ -45,6 +98,11 @@ router.post('/:userId', (req, res) => {
          const newtwitId = newDoc.id
 
 
+
+/////////////////////////////////////////////////---- Remplissage OU creation d' un Hashtag en BDD //////////////////////////////////////////////////
+
+
+
          if(tags.length>0){
       
             for(let tag of tags){
@@ -52,39 +110,18 @@ router.post('/:userId', (req, res) => {
                Hashtag.findOne({name : tag})
                .then(data => {
                   
-                  //console.log("dataaaaaaaaaaa", data)
-                  if(data){
-                     
-                     
-                     // console.log("dataaaaaaaaaaaaaaaaaa", data)
-                     // console.log("twiiiiiiiiiiiiiiiiiit", twit)
-                     // console.log("t       f        f     f")
-                     //data.twits.push(newtwitId).save()
-
-                     //console.log("tag",tag)
-                     //console.log("newtwitId",newtwitId)
-
+                  if(data){   
                      Hashtag.updateOne(
                         { name : tag },
                         { $addToSet: { twits: newtwitId } }
                      ).then()
-
-
-
-
-
-                     //data.twits.push(newTwit.twit).save()
                   } else {
-                     //console.log("newTwit._id", newTwit._id)
                      
                      const newHashtag = new Hashtag({
                         name : tag,  
                         twits: [newtwitId]
-      
                   })
-      
                   newHashtag.save()
-      
                   }
                })
                
@@ -92,118 +129,26 @@ router.post('/:userId', (req, res) => {
       
          }
 
-
-
          res.json({ result: true, 
-            newTwitObj : newDoc,
-            //       newTwit : newDoc.twit,
+            newTwitObj : newDoc,})
+      })
+   
+     });
+
+   
+ //       newTwit : newDoc.twit,
             //    newtwitDate : newDoc.date,
             //    newtwitLiked : newDoc.liked,
             //    newtwitHashtag : newDoc.hashtag,
             //    newtwitUser : newDoc.user,
             //    newtwitId : newDoc.id,
-      
-      
-      
-            //    
-      
-      
-             })
-      
 
 
 
 
-      //    res.json({ result: true, 
-      //       newTwit : newDoc.twit,
-      //    newtwitDate : newDoc.date,
-      //    newtwitLiked : newDoc.liked,
-      //    newtwitHashtag : newDoc.hashtag,
-      //    newtwitUser : newDoc.user,
-      //    newtwitId : newDoc.id,
-
-
-
-      //    NouveauTweet : newDoc
-
-
-      // })
-
-
-
-
-
-
-
-
-/////////////////////////////// if hashtag exist ////////////////////////////////:
-
-
-
-   
-
-
-
-
-
-
-
-
-         
-
-      })
-
-      
-         
-      //    if(tags.length>0){
-
-         
-      //       for(let tag of tags){
-      //          //console.log("eeeeeeee", tag)
-      //          Hashtag.findOne({name : tag})
-      //          .then(data => {
-                  
-      //             //console.log("dataaaaaaaaaaa", data)
-      //             if(data){
-                     
-                     
-      //                // console.log("dataaaaaaaaaaaaaaaaaa", data)
-      //                // console.log("twiiiiiiiiiiiiiiiiiit", twit)
-      //                // console.log("t       f        f     f")
-      //                data.twits.push(DATA.addedTwit._id)
-      //                //data.twits.push(newTwit.twit).save()
-      //             } else {
-      //                //console.log("newTwit._id", newTwit._id)
-                     
-      //                const newHashtag = new Hashtag({
-      //                   name : tag,  
-      //                   twits: [newTwit._id]
-   
-      //             })
-   
-      //             newHashtag.save().then(newDoc => {
-      //                res.json({ result: true, newHashtag: newDoc });
-      //             });
-   
-      //             }
-      //          })
-               
-      //       }
-   
-      //    }
-
-      // })
-
-      
-      
-
-      
-   
-     });
-
-   
-
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////---- Suppression d' un Tweet        ///////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 router.delete('/:twitId', (req, res) => {
 
@@ -221,6 +166,10 @@ router.delete('/:twitId', (req, res) => {
 
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////---- Chercher des tweets //////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 router.get('/', (req, res) => {
    Twit.find( {"twit":
@@ -235,16 +184,7 @@ router.get('/', (req, res) => {
 
 
 
-router.get('/tag', (req, res) => {
-   Twit.find( {"twit":
-   { $regex: new RegExp("^" + req.body.tag + ".*", "i")}}).then(data => {
-    if (data) {
-      res.json({ result: true, twits : data });
-    } else {
-      res.json({ result: false, error: 'no tweets matching with your request' });
-    }
-  });
-});
+
 
 
 

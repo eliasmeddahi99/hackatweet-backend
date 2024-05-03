@@ -7,17 +7,39 @@ const Hashtag = require('../models/hashtags');
 //require("../models/connection")
 
 /* GET users listing. */
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////---- List de touts les tweets comprenant un hashtag /////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 router.get('/', (req, res) => {
-  Twit.find( {"twit":
-  { $regex: new RegExp(".*" + req.body.mysearch + ".*", "i")}}).then(data => {
+  Hashtag.find({}).populate("twits").then(data => {
    if (data) {
-     res.json({ result: true, twits : data });
+     res.json({ result: true, AllTwits : data });
    } else {
-     res.json({ result: false, error: 'no tweets matching with your request' });
+     res.json({ result: false, error: 'no tweets with hashtags' });
    }
  });
 });
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////---- Chercher les tweets correspondant à un hashtag en particulier //////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+router.get('/:tag', (req, res) => {
+  Hashtag.find({name : req.params.tag}).populate("twits").then(data => {
+   if (data) {
+     res.json({ result: true, twits : data });
+   } else {
+     res.json({ result: false, error: 'no tweets with hashtags' });
+   }
+ });
+});
 
 
 
