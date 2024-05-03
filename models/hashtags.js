@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const hashtagSchema = mongoose.Schema({
-  name: string,
+  name: String,
   twits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'twits'}],
 });
 

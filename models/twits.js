@@ -2,9 +2,11 @@ const mongoose = require('mongoose');
 
 const twitSchema = mongoose.Schema({
   twit: String,
-  date: Date,
+  date: {
+    type : Date,
+    default : Date.now()},
   liked: [String],
-  hashtag: String,
+  hashtag: [String],
   user : { type: mongoose.Schema.Types.ObjectId, ref: 'users' }
 });
 
